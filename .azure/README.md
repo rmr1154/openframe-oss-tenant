@@ -2,6 +2,31 @@
 
 This folder contains scripts and configurations for deploying OpenFrame on Microsoft Azure.
 
+## Before You Start: Consider Local Development
+
+**For evaluation and testing, you don't need Azure at all.** The platform runs on Docker Desktop or Kind (Kubernetes in Docker) at **zero cost**:
+
+```bash
+# From the project root - uses Kind/Docker Desktop
+./run.sh bootstrap    # Full cluster setup
+./run.sh up           # Start cluster
+./run.sh app all      # Deploy all apps
+```
+
+**Local Requirements:**
+- Docker Desktop with Kubernetes enabled (or Kind)
+- 16GB RAM allocated to Docker
+- 4+ CPU cores
+- 50GB disk space
+
+**Use Azure when you need:**
+- Shared team environments
+- CI/CD pipelines
+- Pre-production staging
+- Production deployments
+
+---
+
 ## Architecture Overview
 
 The Azure deployment uses the following services:
@@ -43,25 +68,46 @@ az account set --subscription "YOUR_SUBSCRIPTION_ID"
 
 ## Deployment Options
 
-### Test Environment (Minimal Cost)
+| Environment | Monthly Cost | Use Case |
+|-------------|-------------|----------|
+| **Local (Docker/Kind)** | **$0** | Evaluation, demos, local dev |
+| **Eval (Azure)** | ~$100-130 | Shared testing, all self-hosted |
+| **Test (Azure)** | ~$150-250 | Team testing, managed DBs |
+| **Dev (Azure)** | ~$350-500 | Active development, staging |
+| **Prod (Azure)** | ~$1,500-3,000 | Production workloads |
+
+### Local / Docker Desktop ($0)
+- Use existing `./run.sh` scripts
+- All services run in Docker/Kind
+- Best for: Individual evaluation, demos
+
+### Eval Environment (~$100-130/month)
+- Single AKS node (B4ms - 4 vCPU, 16GB RAM)
+- **All databases self-hosted on AKS** (no Cosmos DB, no Azure Redis)
+- No monitoring stack
+- Estimated cost breakdown:
+  - AKS node: ~$85
+  - ACR Basic: ~$5
+  - Load Balancer: ~$18
+  - Storage/bandwidth: ~$2
+
+### Test Environment (~$150-250/month)
 - Single AKS node (B4ms - 4 vCPU, 16GB RAM)
 - Cosmos DB Serverless (pay per request)
-- Basic tier services
+- Azure Cache for Redis Basic
+- Event Hubs Basic
 - No high availability
-- Estimated cost: **$150-250/month**
 
-### Development Environment
+### Development Environment (~$350-500/month)
 - 2-node AKS cluster (B4ms)
 - Cosmos DB with 1000 RU/s provisioned
 - Standard tier for critical services
-- Estimated cost: **$350-500/month**
 
-### Production Environment
+### Production Environment (~$1,500-3,000/month)
 - 3+ node AKS cluster with autoscaling (D4s_v5)
 - Cosmos DB with autoscale (4000 RU/s max)
 - Premium/Standard tier services
 - Multi-zone redundancy
-- Estimated cost: **$1,500-3,000/month**
 
 ## Directory Structure
 

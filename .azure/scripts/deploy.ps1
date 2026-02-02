@@ -28,7 +28,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("test", "dev", "prod")]
+    [ValidateSet("eval", "test", "dev", "prod")]
     [string]$Environment,
 
     [Parameter(Mandatory = $true)]
@@ -56,6 +56,22 @@ $ProjectRoot = Split-Path -Parent (Split-Path -Parent $ScriptRoot)
 
 # Environment configurations
 $EnvConfigs = @{
+    eval = @{
+        AksNodeCount      = 1
+        AksNodeSize       = "Standard_B4ms"
+        AksMinNodes       = 1
+        AksMaxNodes       = 1
+        CosmosDbMode      = "None"  # Self-hosted on AKS
+        CosmosDbRU        = 0
+        RedisSize         = "None"  # Self-hosted on AKS
+        RedisSku          = "None"
+        EventHubsTier     = "None"  # Self-hosted Kafka on AKS
+        EventHubsCapacity = 0
+        AcrSku            = "Basic"
+        EnableMonitoring  = $false
+        EnableHA          = $false
+        SelfHostedData    = $true
+    }
     test = @{
         AksNodeCount      = 1
         AksNodeSize       = "Standard_B4ms"
@@ -70,6 +86,7 @@ $EnvConfigs = @{
         AcrSku            = "Basic"
         EnableMonitoring  = $false
         EnableHA          = $false
+        SelfHostedData    = $false
     }
     dev  = @{
         AksNodeCount      = 2
